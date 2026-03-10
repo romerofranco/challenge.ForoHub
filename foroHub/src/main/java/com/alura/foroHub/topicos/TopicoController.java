@@ -41,4 +41,11 @@ public class TopicoController {
                 .toList();
         return ResponseEntity.ok(topicos);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DatosRespuestaTopico> detallarTopico(@PathVariable Long id) {
+        Topico topico = topicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Topico no encontrado"));
+        return ResponseEntity.ok(new DatosRespuestaTopico(topico));
+    }
 }
