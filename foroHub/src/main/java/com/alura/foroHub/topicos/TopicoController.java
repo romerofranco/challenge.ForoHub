@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.util.List;
 
 import java.net.URI;
 
@@ -20,6 +21,10 @@ public class TopicoController {
             @RequestBody @Valid DatosCrearTopico datos,
             UriComponentsBuilder uriComponentsBuilder) {
 
+        if (topicoRepository.existsByTituloAndMensaje(datos.titulo(), datos.mensaje())) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Topico topico = new Topico(datos);
         topicoRepository.save(topico);
 
@@ -27,5 +32,13 @@ public class TopicoController {
                 .buildAndExpand(topico.getId()).toUri();
 
         return ResponseEntity.created(url).body(new DatosRespuestaTopico(topico));
+    }
+    @GetMapping
+    public ResponseEntity<List<DatosRespuestaTopico>> listarTopicos() {
+        List<DatosRespuestaTopico> topicos = topicoRepository.findAll()
+                .stream()
+                .map(DatosRespuestaTopico::new)
+                .toList();
+        return ResponseEntity.ok(topicos);
     }
 }
