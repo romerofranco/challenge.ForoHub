@@ -15,11 +15,15 @@ public class AutenticacionController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private TokenServicio tokenServicio;
+
     @PostMapping
     public ResponseEntity autenticarUsuario(@RequestBody @Valid DatosAutenticacion datos) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 datos.login(), datos.contrasena());
-        authenticationManager.authenticate(authToken);
-        return ResponseEntity.ok().build();
+        var usuarioAutenticado = authenticationManager.authenticate(authToken);
+        var tokenJWT = tokenServicio.generarToken((Usuario) usuarioAutenticado.getPrincipal());
+        return ResponseEntity.ok(new DatosTokenJWT(tokenJWT));
     }
 }
