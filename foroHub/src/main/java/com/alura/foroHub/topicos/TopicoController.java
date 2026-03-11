@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 
@@ -47,5 +48,20 @@ public class TopicoController {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Topico no encontrado"));
         return ResponseEntity.ok(new DatosRespuestaTopico(topico));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<DatosRespuestaTopico> actualizarTopico(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarTopico datos) {
+
+        var optionalTopico = topicoRepository.findById(id);
+        if (optionalTopico.isPresent()) {
+            Topico topico = optionalTopico.get();
+            topico.actualizar(datos);
+            return ResponseEntity.ok(new DatosRespuestaTopico(topico));
+        }
+        return ResponseEntity.notFound().build();
     }
 }
